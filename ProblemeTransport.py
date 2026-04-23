@@ -33,16 +33,9 @@ class ProblemeTransport():
         self.prob_transp = [[0 for _ in range(self.nb_colonne)] for _ in range(self.nb_ligne)]
         ligne = 0
         colonne = 0
-        while (ligne != self.nb_ligne - 1) or (colonne != self.nb_colonne - 1 ):
-            print(ligne, self.nb_ligne, colonne, self.nb_colonne)
-            if ligne < self.nb_ligne:
-                lim_ligne = self.provision[ligne] - somme_ligne(self.prob_transp, ligne)
-            else:
-                lim_ligne = float('inf')
-            if colonne < self.nb_colonne:
-                lim_colonne = self.commande[colonne] - somme_colonne(self.prob_transp, colonne)
-            else:
-                lim_colonne = float('inf')
+        while (ligne < self.nb_ligne) and (colonne < self.nb_colonne):
+            lim_ligne = self.provision[ligne] - somme_ligne(self.prob_transp, ligne)
+            lim_colonne = self.commande[colonne] - somme_colonne(self.prob_transp, colonne)
             if lim_colonne < lim_ligne:
                 self.prob_transp[ligne][colonne] = lim_colonne
                 colonne +=1
@@ -51,15 +44,16 @@ class ProblemeTransport():
                 ligne += 1
             elif lim_colonne == lim_ligne:
                 self.prob_transp[ligne][colonne] = lim_colonne
-                if ligne < self.nb_ligne:
-                    ligne += 1
-                if colonne < self.nb_colonne:
-                    colonne += 1
+                ligne += 1
+                colonne+=1
 
-    def hammer(self):
+    def hammer(self, verbose=False):
+        if verbose:
+            print("Résolution avec Balas-Hammer")
         self.prob_transp = [[0 for _ in range(self.nb_colonne)] for _ in range(self.nb_ligne)]
         tab_ind_ligne_poss = [i for i in range(self.nb_ligne)]
         tab_ind_col_poss = [i for i in range(self.nb_colonne)]
+        iteration = 1
         while len(tab_ind_ligne_poss) != 0 and len(tab_ind_col_poss) != 0:
             delta_ligne = []
             delta_colonne = []
@@ -67,22 +61,36 @@ class ProblemeTransport():
                 delta_ligne.append(self.calcul_delta_hammer_ligne(tab_ind_col_poss, ind_ligne))
             for ind_col in tab_ind_col_poss:
                 delta_colonne.append(self.calcul_delta_hammer_colonne(tab_ind_ligne_poss, ind_col))
-            min_delta = (float('inf'),)
+            tab_min_delta = [(-float('inf'),)]
             for delta in delta_ligne:
-                if delta[0] < min_delta[0]:
-                    min_delta = delta
-                elif delta[0] == min_delta[0]:
-                    if self.cout[min_delta[1]][min_delta[2]] > self.cout[delta[1]][delta[2]]:
-                        min_delta = delta
+                if delta[0] > tab_min_delta[0][0]:
+                    tab_min_delta = [delta]
+                elif delta[0] == tab_min_delta[0][0]:
+                    if self.cout[tab_min_delta[0][1]][tab_min_delta[0][2]] > self.cout[delta[1]][delta[2]]:
+                        tab_min_delta.insert(0, delta)
+                    else:
+                        tab_min_delta.append(delta)
             for delta in delta_colonne:
-                if delta[0] < min_delta[0]:
-                    min_delta = delta
-                elif delta[0] == min_delta[0]:
-                    if self.cout[min_delta[1]][min_delta[2]] > self.cout[delta[1]][delta[2]]:
-                        min_delta = delta
+                if delta[0] > tab_min_delta[0][0]:
+                    tab_min_delta = [delta]
+                elif delta[0] == tab_min_delta[0][0]:
+                    if self.cout[tab_min_delta[0][1]][tab_min_delta[0][2]] > self.cout[delta[1]][delta[2]]:
+                        tab_min_delta.insert(0, delta)
+                    else:
+                        tab_min_delta.append(delta)
+            min_delta = tab_min_delta[0]
+            if verbose:
+                print(f"Itération {iteration} :")
+                print(f"Colonne/Ligne de pénalité maximale avec une pénalité de {tab_min_delta[0][0]} :")
+                for delta in tab_min_delta:
+                    if delta[3] == "ligne":
+                        print(f"La ligne d'indice {delta[1]}")
+                    else:
+                        print(f"La colonne d'indice {delta[2]}")
+                print(f"On choisit maintenant l'arête ({min_delta[1]},{min_delta[2]}) car elle possède le coût minimum qui est de {self.cout[min_delta[1]][min_delta[2]]}\n\n")
+                iteration += 1
             prov_poss = self.provision[min_delta[1]] - somme_ligne(self.prob_transp, min_delta[1])
             com_poss = self.commande[min_delta[2]] - somme_colonne(self.prob_transp, min_delta[2])
-            print("passage\nmin_delta :", min_delta,"\nligne_poss : ", tab_ind_ligne_poss, "\ncol_poss : ", tab_ind_col_poss)
             if prov_poss < com_poss:
                 self.prob_transp[min_delta[1]][min_delta[2]] = prov_poss
                 tab_ind_ligne_poss.remove(min_delta[1])
@@ -93,7 +101,6 @@ class ProblemeTransport():
                 self.prob_transp[min_delta[1]][min_delta[2]] = prov_poss
                 tab_ind_ligne_poss.remove(min_delta[1])
                 tab_ind_col_poss.remove(min_delta[2])
-        print(self.prob_transp)
                 
             
         
@@ -101,7 +108,7 @@ class ProblemeTransport():
     
     def calcul_delta_hammer_ligne(self,tab_ind_poss, ligne):
         if len(tab_ind_poss) == 1:
-            return self.cout[ligne][tab_ind_poss[0]], ligne, tab_ind_poss[0]
+            return self.cout[ligne][tab_ind_poss[0]], ligne, tab_ind_poss[0], "ligne"
         ind_min_1 = 0
         ind_min_2 = 1
         if self.cout[ligne][tab_ind_poss[0]] > self.cout[ligne][tab_ind_poss[1]]:
@@ -113,12 +120,12 @@ class ProblemeTransport():
                 ind_min_1 = ind
             elif self.cout[ligne][tab_ind_poss[ind]] < self.cout[ligne][tab_ind_poss[ind_min_2]]:
                 ind_min_2 = ind
-        return self.cout[ligne][tab_ind_poss[ind_min_2]] - self.cout[ligne][tab_ind_poss[ind_min_1]], ligne ,tab_ind_poss[ind_min_1]
+        return self.cout[ligne][tab_ind_poss[ind_min_2]] - self.cout[ligne][tab_ind_poss[ind_min_1]], ligne ,tab_ind_poss[ind_min_1], "ligne"
         
     
     def calcul_delta_hammer_colonne(self,tab_ind_poss, colonne):
         if len(tab_ind_poss) == 1:
-            return self.cout[tab_ind_poss[0]][colonne], tab_ind_poss[0], colonne
+            return self.cout[tab_ind_poss[0]][colonne], tab_ind_poss[0], colonne, "colonne"
         ind_min_1 = 0
         ind_min_2 = 1
         if self.cout[tab_ind_poss[0]][colonne] > self.cout[tab_ind_poss[1]][colonne]:
@@ -130,5 +137,14 @@ class ProblemeTransport():
                 ind_min_1 = ind
             elif self.cout[tab_ind_poss[ind]][colonne] < self.cout[tab_ind_poss[ind_min_2]][colonne]:
                 ind_min_2 = ind
-        return self.cout[tab_ind_poss[ind_min_2]][colonne] - self.cout[tab_ind_poss[ind_min_1]][colonne], tab_ind_poss[ind_min_1], colonne
+        return self.cout[tab_ind_poss[ind_min_2]][colonne] - self.cout[tab_ind_poss[ind_min_1]][colonne], tab_ind_poss[ind_min_1], colonne, "colonne"
+
+    def calcul_cout_tot(self):
+        cout_tot = 0
+        for i in range(self.nb_ligne):
+            for j in range(self.nb_colonne):
+                cout_tot += self.cout[i][j] * self.prob_transp[i][j]
+        return cout_tot
+
+        
         
