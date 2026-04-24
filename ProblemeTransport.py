@@ -1,4 +1,5 @@
 from function import *
+from collections import deque
 
 
 class ProblemeTransport():
@@ -9,7 +10,9 @@ class ProblemeTransport():
         self.commande = [0 for _ in range(nb_colonne)]
         self.nb_ligne = nb_ligne
         self.nb_colonne = nb_colonne
-
+        self.dico_cout_pot = {}
+        self.mat_cout_pot = [[0 for _ in range(nb_colonne)] for _ in range(nb_ligne)]
+        self.mat_cout_marg = [[0 for _ in range(nb_colonne)] for _ in range(nb_ligne)]
 
     def __init__(self, doc):
         with open(str("data/" + doc),'r', encoding="utf-8") as fichier:
@@ -18,7 +21,10 @@ class ProblemeTransport():
             ligne_0 = ligne_0.split(" ")
             self.nb_ligne = int(ligne_0[0])
             self.nb_colonne = int(ligne_0[1])
-            tab_ligne = tab_ligne[1::]
+            tab_ligne = tab_ligne[1:]
+            self.dico_cout_pot = {}
+            self.mat_cout_pot = [[0 for _ in range(self.nb_colonne)] for _ in range(self.nb_ligne)]
+            self.mat_cout_marg = [[0 for _ in range(self.nb_colonne)] for _ in range(self.nb_ligne)]
             for indice_ligne in range(len(tab_ligne)):
                 tab_ligne[indice_ligne] = tab_ligne[indice_ligne].strip()
                 tab_ligne[indice_ligne] = tab_ligne[indice_ligne].split()
@@ -47,7 +53,7 @@ class ProblemeTransport():
                 ligne += 1
                 colonne+=1
 
-    def hammer(self, verbose=False):
+    def hammer(self, verbose=True):
         if verbose:
             print("Résolution avec Balas-Hammer")
         self.prob_transp = [[0 for _ in range(self.nb_colonne)] for _ in range(self.nb_ligne)]
@@ -145,6 +151,145 @@ class ProblemeTransport():
             for j in range(self.nb_colonne):
                 cout_tot += self.cout[i][j] * self.prob_transp[i][j]
         return cout_tot
-
+    
+    def detection_cycle(self, verbose = True):
+        parents = {(0, "ligne") : None}
+        sommets_en_cours = deque([(0, "ligne", None)])
+        while sommets_en_cours:
+            sommet, type_sommet, parent = sommets_en_cours.popleft()
+            if type_sommet == "ligne":
+                for ind in range(self.nb_colonne):
+                    if ind != parent and self.prob_transp[sommet][ind] != 0:
+                        voisin = (ind, "col")
+                        if voisin in parents:
+                            cycle = ProblemeTransport.recreation_cycle(parents, (sommet,type_sommet), voisin)
+                            if verbose:
+                                ProblemeTransport.affichage_cycle(cycle)
+                            return True, cycle
+                        parents[voisin] = (sommet,type_sommet)
+                        sommets_en_cours.append((ind, "col", sommet))
+            else:
+                for ind in range(self.nb_ligne):
+                    if ind != parent and self.prob_transp[ind][sommet] != 0:
+                        voisin = (ind, "ligne")
+                        if voisin in parents:
+                            cycle = ProblemeTransport.recreation_cycle(parents, (sommet,type_sommet), voisin)
+                            if verbose:
+                                ProblemeTransport.affichage_cycle(cycle)
+                            return True, cycle
+                        parents[voisin] = (sommet,type_sommet)
+                        sommets_en_cours.append((ind, "ligne", sommet))
+        return False, []
+    
+    @staticmethod
+    def recreation_cycle(parents, noeud_fin, noeud_boucle):
+        chemin_fin = [noeud_fin]
+        chemin_boucle = [noeud_boucle]
+        # on fait le chemin depuis le noeud de fin
+        courant = noeud_fin
+        while parents[courant] != None:
+            courant = parents[courant]
+            chemin_fin.append(courant)
+            # on fait le chemin pour le noeud de boucle    
+        courant = noeud_boucle
+        while parents[courant] != None:
+            courant = parents[courant]
+            chemin_boucle.append(courant)
+        
+        while len(chemin_boucle) > 1 and len(chemin_fin) > 1 and chemin_fin[-2] == chemin_boucle[-2]:
+            chemin_boucle.pop()
+            chemin_fin.pop()
+        
+        chemin_fin.reverse()
+        return chemin_fin + chemin_boucle[:-1]
+    
+    @staticmethod
+    def affichage_cycle(cycle):
+        print("Le cycle est composé de :")
+        for element in cycle:
+            if element[1] == "ligne":
+                print("La ligne", element[0])
+            else:
+                print("La colonne", element[0])
+                
+                
+    @staticmethod
+    def affichage_sous_graphe(tab_graphe):
+        print(f"Dans ce graphe on observe {len(tab_graphe)} sous-graphes connexe :\n")
+        for ind in range(len(tab_graphe)):
+            print(f"sous-graphe {ind + 1} :")
+            print("Il contient les lignes :")
+            lignes = sorted({s[0] for s in tab_graphe[ind] if s[1] == "ligne"})
+            colonnes = sorted({s[0] for s in tab_graphe[ind] if s[1] == "col"})
+            for ligne in lignes:
+                print(ligne)
+            print("\nEt les colonnes :")
+            for colonne in colonnes:
+                print(colonne)
+            print("\n")
+    
+    def est_connexe(self, verbose=True):
+        liste_graphes = []
+        sommets_restant = {(i, "ligne") for i in range(self.nb_ligne)} | {(j, "col") for j in range(self.nb_colonne)}
+        while sommets_restant:
+            sommet_depart = sommets_restant.pop()
+            sous_graphe_en_cours = {sommet_depart}
+            sommets_en_cours = deque([sommet_depart])
+            while sommets_en_cours:
+                sommet, type_sommet = sommets_en_cours.popleft()
+                if type_sommet == "ligne":
+                    for ind in range(self.nb_colonne):
+                        if self.prob_transp[sommet][ind] != 0 and (ind, "col") not in sous_graphe_en_cours:                            
+                            sommets_en_cours.append((ind, "col"))
+                            sous_graphe_en_cours.add((ind, "col"))
+                            sommets_restant.discard((ind, "col"))
+                else:
+                    for ind in range(self.nb_ligne):
+                        if self.prob_transp[ind][sommet] != 0 and (ind, "ligne") not in sous_graphe_en_cours:
+                            sommets_en_cours.append((ind, "ligne"))
+                            sous_graphe_en_cours.add((ind, "ligne"))
+                            sommets_restant.discard((ind, "ligne"))
+            liste_graphes.append(sous_graphe_en_cours)
+        if verbose:
+            ProblemeTransport.affichage_sous_graphe(liste_graphes)
+        return len(liste_graphes) == 1, liste_graphes
+    
+    def calcul_cout_potentiel(self, verbose = True):
+        if verbose:
+            print("On initialise le cout potentielle de la ligne 0 à 0")
+            print(self.mat_cout_pot)
+        self.dico_cout_pot = {(0, "ligne"): 0}
+        en_cours = deque([(0, "ligne")])
+        while len(self.dico_cout_pot) != (self.nb_colonne + self.nb_ligne) and en_cours:
+            sommet, type_sommet = en_cours.popleft()
+            if type_sommet == "ligne":
+                for ind in range(self.nb_colonne):
+                    if (ind, "col") not in self.dico_cout_pot and self.prob_transp[sommet][ind] != 0:
+                        self.dico_cout_pot[(ind, "col")] = self.cout[sommet][ind] - self.dico_cout_pot[(sommet, type_sommet)]
+                        en_cours.append((ind, "col"))
+            else:
+                for ind in range(self.nb_ligne):
+                    if (ind, "ligne") not in self.dico_cout_pot and self.prob_transp[ind][sommet] != 0:
+                        self.dico_cout_pot[(ind, "ligne")] = self.cout[ind][sommet] - self.dico_cout_pot[(sommet, type_sommet)]
+                        en_cours.append((ind, "ligne"))
+        for ind_ligne in range(self.nb_ligne):
+            for ind_col in range(self.nb_colonne):
+                self.mat_cout_pot[ind_ligne][ind_col] = self.dico_cout_pot[(ind_ligne, "ligne")] + self.dico_cout_pot[(ind_col, "col")]
+        if verbose:
+            self.affichage_cout_potentiel()
+    
+    def affichage_cout_potentiel(self):
+        pass
+    
+    def calcul_cout_marginaux(self, verbose = True):
+        for ind_ligne in range(self.nb_ligne):
+            for ind_colonne in range(self.nb_colonne):
+                self.mat_cout_marg[ind_ligne][ind_colonne] = self.cout[ind_ligne][ind_colonne] - self.mat_cout_pot[ind_ligne][ind_colonne]
+        if verbose:
+            self.affichage_cout_marginaux()
+            print(self.mat_cout_marg)  
+    
+    def affichage_cout_marginaux(self):
+        pass    
         
         
