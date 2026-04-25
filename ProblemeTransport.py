@@ -1,6 +1,7 @@
 from function import *
 from collections import deque
 from random import randint
+import heapq
 
 
 class ProblemeTransport():
@@ -80,7 +81,20 @@ class ProblemeTransport():
             print("Résolution avec Balas-Hammer")
         self.init_prob_transp()
         set_ind_ligne_poss = {i for i in range(self.nb_ligne)}
-        set_ind_col_poss = {i for i in range(self.nb_colonne)}
+        set_ind_col_poss = {j for j in range(self.nb_colonne)}
+        heaps_lignes = {}
+        for i in range(self.nb_ligne):
+            if i%100 == 0:
+                print(f"i = {i}")
+            ligne_donnees = [(self.cout[i][j], j) for j in range(self.nb_colonne)]
+            heapq.heapify(ligne_donnees)
+            heaps_lignes[i] = ligne_donnees
+        heaps_colonnes = {}
+        for j in range(self.nb_colonne):
+            print(f"j = {j}")
+            ligne_donnees = [(self.cout[i][j], i) for i in range(self.nb_ligne)]
+            heapq.heapify(ligne_donnees)
+            heaps_colonnes[j] = ligne_donnees
         iteration = 1
         restant_ligne = self.provision.copy()
         restant_colonne = self.commande.copy()
@@ -91,11 +105,11 @@ class ProblemeTransport():
             if type_last is None or type_last == "col":
                 delta_ligne = []
                 for ind_ligne in set_ind_ligne_poss:
-                    delta_ligne.append(self.calcul_delta_hammer_ligne(set_ind_col_poss, ind_ligne))
+                    delta_ligne.append(self.calcul_delta_hammer_ligne(ind_ligne, set_ind_col_poss, heaps_lignes))
             if type_last is None or type_last == "ligne":
-                delta_colonne = []
+                delta_colonne = []  
                 for ind_col in set_ind_col_poss:
-                    delta_colonne.append(self.calcul_delta_hammer_colonne(set_ind_ligne_poss, ind_col))
+                    delta_colonne.append(self.calcul_delta_hammer_colonne(ind_col, set_ind_ligne_poss, heaps_colonnes))
             tab_min_delta = [(-float('inf'),)]
             for delta in delta_ligne:
                 if delta[0] > tab_min_delta[0][0]:
@@ -157,52 +171,38 @@ class ProblemeTransport():
         
     
     
-    def calcul_delta_hammer_ligne(self,set_ind_poss, ligne):
-        if len(set_ind_poss) == 1:
-            seul_elem = next(iter(set_ind_poss))
-            return self.cout[ligne][seul_elem], ligne, seul_elem, "ligne"
-        ind_min_1 = None
-        ind_min_2 = None
-        for colonne in set_ind_poss:
-            if ind_min_1 is None:
-                ind_min_1 = colonne
-            elif ind_min_2 is None:
-                if self.cout[ligne][ind_min_1] > self.cout[ligne][colonne]:
-                    ind_min_2 = ind_min_1
-                    ind_min_1 = colonne
-                else:
-                    ind_min_2 = colonne
-            else:
-                if self.cout[ligne][colonne] < self.cout[ligne][ind_min_1]:
-                    ind_min_2 = ind_min_1
-                    ind_min_1 = colonne
-                elif self.cout[ligne][colonne] < self.cout[ligne][ind_min_2]:
-                    ind_min_2 = colonne
-        return self.cout[ligne][ind_min_2] - self.cout[ligne][ind_min_1], ligne , ind_min_1, "ligne"
+    def calcul_delta_hammer_ligne(self, ligne, colonnes_poss, heaps_lignes):
+        heap = heaps_lignes[ligne]
+        while heap and heap[0][1] not in colonnes_poss:
+            heapq.heappop(heap)
+        cout_min_1, ind_min_1 = heapq.heappop(heap)
+        while heap and heap[0][1] not in colonnes_poss:
+            heapq.heappop(heap)
+        if not heap:
+            heapq.heappush(heap, (cout_min_1, ind_min_1))
+            return cout_min_1, ligne, ind_min_1, "ligne"
+        cout_min_2, ind_min_2 = heapq.heappop(heap)
+        heapq.heappush(heap, (cout_min_1, ind_min_1))
+        heapq.heappush(heap, (cout_min_2, ind_min_2))
+        delta = cout_min_2 - cout_min_1
+        return delta, ligne, ind_min_1, "ligne"
                 
     
-    def calcul_delta_hammer_colonne(self,set_ind_poss, colonne):
-        if len(set_ind_poss) == 1:
-            seul_elem = next(iter(set_ind_poss))
-            return self.cout[seul_elem][colonne], seul_elem, colonne, "colonne"
-        ind_min_1 = None
-        ind_min_2 = None
-        for ligne in set_ind_poss:
-            if ind_min_1 is None:
-                ind_min_1 = ligne
-            elif ind_min_2 is None:
-                if self.cout[ind_min_1][colonne] > self.cout[ligne][colonne]:
-                    ind_min_2 = ind_min_1
-                    ind_min_1 = ligne
-                else:
-                    ind_min_2 = ligne
-            else:
-                if self.cout[ligne][colonne] < self.cout[ind_min_1][colonne]:
-                    ind_min_2 = ind_min_1
-                    ind_min_1 = ligne
-                elif self.cout[ligne][colonne] < self.cout[ind_min_2][colonne]:
-                    ind_min_2 = ligne
-        return self.cout[ind_min_2][colonne] - self.cout[ind_min_1][colonne], ind_min_1, colonne, "colonne"
+    def calcul_delta_hammer_colonne(self, colonne, lignes_poss, heaps_colonnes):
+        heap = heaps_colonnes[colonne]
+        while heap and heap[0][1] not in lignes_poss:
+            heapq.heappop(heap)
+        cout_min_1, ind_min_1 = heapq.heappop(heap)
+        while heap and heap[0][1] not in lignes_poss:
+            heapq.heappop(heap)
+        if not heap:
+            heapq.heappush(heap, (cout_min_1, ind_min_1))
+            return cout_min_1, ind_min_1 ,colonne, "col"
+        cout_min_2, ind_min_2 = heapq.heappop(heap)
+        heapq.heappush(heap, (cout_min_1, ind_min_1))
+        heapq.heappush(heap, (cout_min_2, ind_min_2))
+        delta = cout_min_2 - cout_min_1
+        return delta, ind_min_1, colonne, "col"
         
         
     def calcul_cout_tot(self):
