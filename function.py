@@ -1,15 +1,16 @@
 
 
-def somme_ligne(matrice,indice):
+def somme_ligne(dico, indice):
     resultat = 0
-    for nombre in matrice[indice]:
-        resultat += nombre
+    for valeur in dico[(indice, "ligne")].values():
+        resultat += valeur
     return resultat
+        
     
-def somme_colonne(matrice,indice):
+def somme_colonne(dico,indice):
     resultat = 0
-    for ligne in matrice:
-        resultat += ligne[indice]
+    for valeur in dico[(indice, "col")].values():
+        resultat += valeur
     return resultat 
             
         
