@@ -1,8 +1,9 @@
-from function import *
+
 from collections import deque
 from random import randint
 import heapq
 import gc
+from tabulate import tabulate
 
 
 class ProblemeTransport():
@@ -41,6 +42,76 @@ class ProblemeTransport():
             self.prob_transp[(ind_ligne, "ligne")] = {}
         for ind_colonne in range(self.nb_colonne):
             self.prob_transp[(ind_colonne, "col")] = {}
+
+    def affichage_initial(self, max_cols=20):
+        if self.nb_colonne <= max_cols:
+            cols_indices = list(range(self.nb_colonne))
+            headers = [f"C{j}" for j in cols_indices]
+        else:
+            demi = max_cols // 2
+            cols_indices = list(range(demi)) + ["..."] + list(range(self.nb_colonne - demi, self.nb_colonne))
+            headers = [f"C{j}" if j != "..." else "..." for j in cols_indices]
+        
+        headers = ["Source"] + headers + ["Prov."]
+        table = []
+        for i in range(self.nb_ligne):
+            row = [f"L{i}"]
+            if self.nb_colonne <= max_cols:
+                row.extend(self.cout[i])
+            else:
+                demi = max_cols // 2
+                row.extend(self.cout[i][:demi])
+                row.append("...")
+                row.extend(self.cout[i][-demi:])
+            row.append(self.provision[i])
+            table.append(row)
+        cmd_row = ["Cmd"]
+        if self.nb_colonne <= max_cols:
+            cmd_row.extend(self.commande)
+        else:
+            demi = max_cols // 2
+            cmd_row.extend(self.commande[:demi])
+            cmd_row.append("...")
+            cmd_row.extend(self.commande[-demi:])
+        cmd_row.append(sum(self.provision))
+        table.append(cmd_row)
+        print(tabulate(table, headers=headers, tablefmt="grid"))
+    
+    def affichage_solution(self, max_cols=10):
+        if self.nb_colonne <= max_cols:
+            cols_indices = list(range(self.nb_colonne))
+        else:
+            demi = max_cols // 2
+            cols_indices = list(range(demi)) + ["..."] + list(range(self.nb_colonne - demi, self.nb_colonne))
+        headers = ["Source"] + [f"Dest {j}" if j != "..." else "..." for j in cols_indices] + ["Total Ligne"]
+        table = []
+        for i in range(self.nb_ligne):
+            row = [f"Source {i}"]
+            total_ligne_calcule = 0
+            for j in cols_indices:
+                if j == "...":
+                    row.append("...")
+                    continue
+                quantite = self.prob_transp[(i, "ligne")].get(j, 0)
+                total_ligne_calcule += quantite
+                
+                if quantite > 0:
+                    row.append(f"{quantite} (c={self.cout[i][j]})")
+                else:
+                    row.append(".")
+            row.append(total_ligne_calcule)
+            table.append(row)
+        footer = ["Total Col"]
+        for j in cols_indices:
+            if j == "...":
+                footer.append("...")
+                continue
+            total_col = sum(self.prob_transp[(j, "col")].values())
+            footer.append(total_col)
+        footer.append("-")
+        table.append(footer)
+        print(tabulate(table, headers=headers, tablefmt="grid"))
+        print(f"\nCoût total de cette solution : {self.calcul_cout_tot()}\n\n")
         
     def nord_west(self):
         self.init_prob_transp()
@@ -308,27 +379,31 @@ class ProblemeTransport():
     
     @staticmethod
     def affichage_cycle(cycle):
+        print("Cycle détecté")
         print("Le cycle est composé des points :")
         print(cycle[0], end=" ")
         for element in cycle[1:]:
             print(f"=> {element}", end= " ")
-        print()
+        print("\n")
                 
                 
     @staticmethod
     def affichage_sous_graphe(tab_graphe):
-        print(f"Dans ce graphe on observe {len(tab_graphe)} sous-graphes connexe :\n")
-        for ind in range(len(tab_graphe)):
-            print(f"sous-graphe {ind + 1} :")
-            print("Il contient les lignes :")
-            lignes = sorted({s[0] for s in tab_graphe[ind] if s[1] == "ligne"})
-            colonnes = sorted({s[0] for s in tab_graphe[ind] if s[1] == "col"})
-            for ligne in lignes:
-                print(ligne)
-            print("\nEt les colonnes :")
-            for colonne in colonnes:
-                print(colonne)
-            print("\n")
+        if len(tab_graphe) != 1:
+            print(f"Dans ce graphe on observe {len(tab_graphe)} sous-graphes connexe :\n")
+            for ind in range(len(tab_graphe)):
+                print(f"sous-graphe {ind + 1} :")
+                print("Il contient les lignes :")
+                lignes = sorted({s[0] for s in tab_graphe[ind] if s[1] == "ligne"})
+                colonnes = sorted({s[0] for s in tab_graphe[ind] if s[1] == "col"})
+                for ligne in lignes:
+                    print(ligne)
+                print("\nEt les colonnes :")
+                for colonne in colonnes:
+                    print(colonne)
+                print("\n")
+        else:
+            print("La proposition fournie est connexe nous passons donc a l'étape suivante\n")
     
     def est_connexe(self, verbose=True):
         liste_graphes = []
@@ -356,7 +431,8 @@ class ProblemeTransport():
             
     def calcul_cout_potentiel(self, verbose = True):
         if verbose:
-            print("On initialise le cout potentielle de la ligne 0 à 0")
+            print("\nCalcul des coûts potentiels")
+            print("On initialise le potentiel de la ligne 0 à 0")
         self.dico_cout_pot = {(0, "ligne"): 0}
         en_cours = deque([(0, "ligne")])
         while len(self.dico_cout_pot) != (self.nb_colonne + self.nb_ligne) and en_cours:
@@ -372,12 +448,45 @@ class ProblemeTransport():
         if verbose:
             self.affichage_cout_potentiel()
             
-    def affichage_cout_potentiel(self):
-        pass
+    def affichage_cout_potentiel(self, max_display=15):
+        def obtenir_indices(nb, max_d):
+            if nb <= max_d:
+                return list(range(nb))
+            demi = max_d // 2
+            return list(range(demi)) + ["..."] + list(range(nb - demi, nb))
+        indices_u = obtenir_indices(self.nb_ligne, max_display)
+        indices_v = obtenir_indices(self.nb_colonne, max_display)
+        print("\nPotentiel des lignes:")
+        u_vals = [self.dico_cout_pot.get((i, "ligne"), "ø") if i != "..." else "..." for i in indices_u]
+        print(tabulate([u_vals], headers=[f"u{i}" if i != "..." else "..." for i in indices_u], tablefmt="grid"))
+        print("\nPotentiel des colonnes:")
+        v_vals = [self.dico_cout_pot.get((j, "col"), "ø") if j != "..." else "..." for j in indices_v]
+        print(tabulate([v_vals], headers=[f"v{j}" if j != "..." else "..." for j in indices_v], tablefmt="grid"))
+        print("\nMatrice des Coûts Potentiels: ")
+        headers_mat = ["u \\ v"] + [f"v{j}" if j != "..." else "..." for j in indices_v]
+        table_mat = []
+        for i in indices_u:
+            if i == "...":
+                table_mat.append(["..."] * (len(indices_v) + 1))
+                continue
+            u_i = self.dico_cout_pot.get((i, "ligne"), 0)
+            row = [f"u{i}"]
+            for j in indices_v:
+                if j == "...":
+                    row.append("...")
+                    continue
+                v_j = self.dico_cout_pot.get((j, "col"), 0)
+                # La valeur de la matrice de potentiel est la somme des deux variables duales
+                row.append(u_i + v_j)
+            table_mat.append(row)
+        print(tabulate(table_mat, headers=headers_mat, tablefmt="grid"))
+        print("\n")
     
     def calcul_min_cout_marginaux(self, ligne_start = 0, verbose = True, partial = False):
         min_marg = (float("inf"), (None,None))
         pot_cols = [self.dico_cout_pot[(j, "col")] for j in range(self.nb_colonne)]
+        if verbose:
+            self.affichage_cout_marginaux()
         if ligne_start is None:
             ligne_start = 0
         for offset in range(self.nb_ligne):
@@ -394,8 +503,36 @@ class ProblemeTransport():
             self.lim_partial = min_marg[0]//2
         return min_marg
     
-    def affichage_cout_marginaux(self):
-        pass
+    def affichage_cout_marginaux(self, max_display=20):
+        print("Calcul des coûts marginaux")
+        print("\nMatrice des Coûts Marginaux:")
+        if self.nb_colonne <= max_display:
+            cols_indices = list(range(self.nb_colonne))
+        else:
+            demi = max_display // 2
+            cols_indices = list(range(demi)) + ["..."] + list(range(self.nb_colonne - demi, self.nb_colonne))
+        headers = ["Pot."] + [f"v{j}" if j != "..." else "..." for j in cols_indices]
+        table = []
+        if self.nb_ligne <= max_display:
+            lignes_indices = list(range(self.nb_ligne))
+        else:
+            demi = max_display // 2
+            lignes_indices = list(range(demi)) + ["..."] + list(range(self.nb_ligne - demi, self.nb_ligne))
+        for i in lignes_indices:
+            if i == "...":
+                table.append(["..."] * (len(cols_indices) + 1))
+                continue
+            u_i = self.dico_cout_pot.get((i, "ligne"), 0)
+            row = [f"u{i}"]
+            for j in cols_indices:
+                if j == "...":
+                    row.append("...")
+                    continue
+                v_j = self.dico_cout_pot.get((j, "col"), 0)
+                delta_ij = self.cout[i][j] - (u_i + v_j)
+                row.append(delta_ij)
+            table.append(row)
+        print(tabulate(table, headers=headers, tablefmt="grid"))
     
     @staticmethod
     def create_random_pb(nb_ligne, nb_colonne):
@@ -413,9 +550,15 @@ class ProblemeTransport():
         marg_min = (-float("inf"), (None,None))
         self.lim_partial = None
         while marg_min[0] < 0:
+            if verbose:
+                print("Solution actuelle:")
+                self.affichage_solution()
             presence_cycle, cycle = self.detection_cycle(verbose = verbose)
             if presence_cycle:
                 self.maximisation_cycle(cycle, marg_min[1], verbose = verbose)
+            else:
+                if verbose:
+                    print("aucun cycle détecté nous passons donc à l'étape suivante\n")
             if marg_min[1][0] is None:
                 est_connexe, tab_sous_graphe = self.est_connexe(verbose = verbose)
                 if not est_connexe:
@@ -426,7 +569,9 @@ class ProblemeTransport():
                 self.prob_transp[(marg_min[1][0], "ligne")][marg_min[1][1]] = 0
                 self.prob_transp[(marg_min[1][1], "col")][marg_min[1][0]] = 0
                 if verbose:
-                    print(f"On ajoute l'arêtes {marg_min[1]} car elle possède un coût potentielle de {marg_min[0]}")
+                    print(f"On ajoute l'arêtes {marg_min[1]} car elle possède un coût potentielle de {marg_min[0]}\n\n")
+            else:
+                print("Aucune arête améliorante détecté on stop donc l'algorithme\n\n")
 
         
 
@@ -464,12 +609,12 @@ class ProblemeTransport():
  
         sommet = tab_del[0]
         if verbose:
-            print(f"\nOn supprime donc l'arête' : {tab_del[0]}")
+            print(f"\nOn supprime donc l'arête : {tab_del[0]}\n")
         del self.prob_transp[(sommet[0], "ligne")][sommet[1]]
         del self.prob_transp[(sommet[1], "col")][sommet[0]] 
         
 
-    def rendre_connexe(self, tab_sous_graphe):
+    def rendre_connexe(self, tab_sous_graphe, verbose = True):
         graphe_construit = set(tab_sous_graphe.pop(0))
         lignes_restantes = {i for i in range(self.nb_ligne) if (i, "ligne") not in graphe_construit}
         cols_restantes = {j for j in range(self.nb_colonne) if (j, "col") not in graphe_construit}
@@ -489,6 +634,8 @@ class ProblemeTransport():
             self.prob_transp[(min_arete[1][0],"ligne")][min_arete[1][1]] = 0
             self.prob_transp[(min_arete[1][1],"col")][min_arete[1][0]] = 0
             nouveau_sommet = (min_arete[1][0], "ligne") if (min_arete[1][0], "ligne") not in graphe_construit else (min_arete[1][1], "col")
+            if verbose:
+                print(f"On ajoute donc l'arête {min_arete[1]} afin de rendre le graphe connexe\n")
             for i in range(len(tab_sous_graphe)):
                 if nouveau_sommet in tab_sous_graphe[i]:
                     sous_graphe_trouve = tab_sous_graphe[i]      

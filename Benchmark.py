@@ -6,7 +6,7 @@ import gc
 import os  # 👈 Nouveau module nécessaire pour vérifier le fichier
 
 def lancer_benchmark():
-    tab_n = [10000]
+    tab_n = [10, 40, 100, 400, 1000, 4000, 10000]
     nom_fichier = "benchmark_resultats.csv"
     fichier_existe = os.path.isfile(nom_fichier) and os.path.getsize(nom_fichier) > 0
 
