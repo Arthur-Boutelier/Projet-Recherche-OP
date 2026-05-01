@@ -1,0 +1,138 @@
+=== TRACE D'EXÉCUTION : PROBLÈME 2 (BALAS-HAMMER) ===
+
+[ÉTAPES INITIALES]
++----------+------+------+---------+
+| Source   |   C0 |   C1 |   Prov. |
++==========+======+======+=========+
+| L0       |   10 |   20 |     100 |
++----------+------+------+---------+
+| L1       |   30 |   10 |     100 |
++----------+------+------+---------+
+| Cmd      |  100 |  100 |     200 |
++----------+------+------+---------+
+
+[RÉSOLUTION INITIALE : BALAS-HAMMER]
+Résolution avec Balas-Hammer
+Itération 1 :
+Colonne/Ligne de pénalité maximale avec une pénalité de 20 :
+La ligne d'indice 1
+La colonne d'indice 0
+On choisit maintenant l'arête (1,1) car elle possède le coût minimum qui est de 10
+
+
+Itération 2 :
+Colonne/Ligne de pénalité maximale avec une pénalité de 10 :
+La ligne d'indice 0
+La colonne d'indice 0
+On choisit maintenant l'arête (0,0) car elle possède le coût minimum qui est de 10
+
+
++-----------+------------+------------+---------------+
+| Source    | Dest 0     | Dest 1     | Total Ligne   |
++===========+============+============+===============+
+| Source 0  | 100 (c=10) | .          | 100           |
++-----------+------------+------------+---------------+
+| Source 1  | .          | 100 (c=10) | 100           |
++-----------+------------+------------+---------------+
+| Total Col | 100        | 100        | -             |
++-----------+------------+------------+---------------+
+
+Coût total de cette solution : 2000
+
+
+
+[DÉROULÉ DU MARCHEPIED AVEC POTENTIEL]
+Itération 1
+
+Solution actuelle:
++-----------+------------+------------+---------------+
+| Source    | Dest 0     | Dest 1     | Total Ligne   |
++===========+============+============+===============+
+| Source 0  | 100 (c=10) | .          | 100           |
++-----------+------------+------------+---------------+
+| Source 1  | .          | 100 (c=10) | 100           |
++-----------+------------+------------+---------------+
+| Total Col | 100        | 100        | -             |
++-----------+------------+------------+---------------+
+
+Coût total de cette solution : 2000
+
+
+aucun cycle détecté nous passons donc à l'étape suivante
+
+Dans ce graphe on observe 2 sous-graphes connexes :
+
+sous-graphe 1 :
+Il contient les lignes :
+0
+
+Et les colonnes :
+0
+
+
+sous-graphe 2 :
+Il contient les lignes :
+1
+
+Et les colonnes :
+1
+
+
+On ajoute donc l'arête (0, 1) afin de rendre le graphe connexe
+
+
+Calcul des coûts potentiels
+On initialise le potentiel de la ligne 0 à 0
+
+Potentiel des lignes:
++------+------+
+|   u0 |   u1 |
++======+======+
+|    0 |  -10 |
++------+------+
+
+Potentiel des colonnes:
++------+------+
+|   v0 |   v1 |
++======+======+
+|   10 |   20 |
++------+------+
+
+Matrice des Coûts Potentiels: 
++---------+------+------+
+| u \ v   |   v0 |   v1 |
++=========+======+======+
+| u0      |   10 |   20 |
++---------+------+------+
+| u1      |    0 |   10 |
++---------+------+------+
+
+
+Calcul des coûts marginaux
+
+Matrice des Coûts Marginaux:
++--------+------+------+
+| Pot.   |   v0 |   v1 |
++========+======+======+
+| u0     |    0 |    0 |
++--------+------+------+
+| u1     |   30 |    0 |
++--------+------+------+
+Aucune arête améliorante détectée on stop donc l'algorithme
+
+
+
+[RÉSULTAT FINAL OPTIMAL]
++-----------+------------+------------+---------------+
+| Source    | Dest 0     | Dest 1     | Total Ligne   |
++===========+============+============+===============+
+| Source 0  | 100 (c=10) | ε (c=20)   | 100           |
++-----------+------------+------------+---------------+
+| Source 1  | .          | 100 (c=10) | 100           |
++-----------+------------+------------+---------------+
+| Total Col | 100        | 100        | -             |
++-----------+------------+------------+---------------+
+
+Coût total de cette solution : 2000
+
+

@@ -1,0 +1,150 @@
+=== TRACE D'EXÉCUTION : PROBLÈME 5 (BALAS-HAMMER) ===
+
+[ÉTAPES INITIALES]
++----------+------+------+------+---------+
+| Source   |   C0 |   C1 |   C2 |   Prov. |
++==========+======+======+======+=========+
+| L0       |    5 |    7 |    8 |      25 |
++----------+------+------+------+---------+
+| L1       |    6 |    8 |    5 |      25 |
++----------+------+------+------+---------+
+| L2       |    6 |    7 |    7 |      25 |
++----------+------+------+------+---------+
+| Cmd      |   35 |   20 |   20 |      75 |
++----------+------+------+------+---------+
+
+[RÉSOLUTION INITIALE : BALAS-HAMMER]
+Résolution avec Balas-Hammer
+Itération 1 :
+Colonne/Ligne de pénalité maximale avec une pénalité de 2 :
+La ligne d'indice 0
+La colonne d'indice 2
+On choisit maintenant l'arête (0,0) car elle possède le coût minimum qui est de 5
+
+
+Itération 2 :
+Colonne/Ligne de pénalité maximale avec une pénalité de 2 :
+La colonne d'indice 2
+On choisit maintenant l'arête (1,2) car elle possède le coût minimum qui est de 5
+
+
+Itération 3 :
+Colonne/Ligne de pénalité maximale avec une pénalité de 2 :
+La ligne d'indice 1
+On choisit maintenant l'arête (1,0) car elle possède le coût minimum qui est de 6
+
+
+Itération 4 :
+Colonne/Ligne de pénalité maximale avec une pénalité de 7 :
+La colonne d'indice 1
+On choisit maintenant l'arête (2,1) car elle possède le coût minimum qui est de 7
+
+
+Itération 5 :
+Colonne/Ligne de pénalité maximale avec une pénalité de 6 :
+La ligne d'indice 2
+La colonne d'indice 0
+On choisit maintenant l'arête (2,0) car elle possède le coût minimum qui est de 6
+
+
++-----------+----------+----------+----------+---------------+
+| Source    | Dest 0   | Dest 1   | Dest 2   | Total Ligne   |
++===========+==========+==========+==========+===============+
+| Source 0  | 25 (c=5) | .        | .        | 25            |
++-----------+----------+----------+----------+---------------+
+| Source 1  | 5 (c=6)  | .        | 20 (c=5) | 25            |
++-----------+----------+----------+----------+---------------+
+| Source 2  | 5 (c=6)  | 20 (c=7) | .        | 25            |
++-----------+----------+----------+----------+---------------+
+| Total Col | 35       | 20       | 20       | -             |
++-----------+----------+----------+----------+---------------+
+
+Coût total de cette solution : 425
+
+
+
+[DÉROULÉ DU MARCHEPIED AVEC POTENTIEL]
+Itération 1
+
+Solution actuelle:
++-----------+----------+----------+----------+---------------+
+| Source    | Dest 0   | Dest 1   | Dest 2   | Total Ligne   |
++===========+==========+==========+==========+===============+
+| Source 0  | 25 (c=5) | .        | .        | 25            |
++-----------+----------+----------+----------+---------------+
+| Source 1  | 5 (c=6)  | .        | 20 (c=5) | 25            |
++-----------+----------+----------+----------+---------------+
+| Source 2  | 5 (c=6)  | 20 (c=7) | .        | 25            |
++-----------+----------+----------+----------+---------------+
+| Total Col | 35       | 20       | 20       | -             |
++-----------+----------+----------+----------+---------------+
+
+Coût total de cette solution : 425
+
+
+aucun cycle détecté nous passons donc à l'étape suivante
+
+La proposition fournie est connexe nous passons donc à l'étape suivante
+
+
+Calcul des coûts potentiels
+On initialise le potentiel de la ligne 0 à 0
+
+Potentiel des lignes:
++------+------+------+
+|   u0 |   u1 |   u2 |
++======+======+======+
+|    0 |    1 |    1 |
++------+------+------+
+
+Potentiel des colonnes:
++------+------+------+
+|   v0 |   v1 |   v2 |
++======+======+======+
+|    5 |    6 |    4 |
++------+------+------+
+
+Matrice des Coûts Potentiels: 
++---------+------+------+------+
+| u \ v   |   v0 |   v1 |   v2 |
++=========+======+======+======+
+| u0      |    5 |    6 |    4 |
++---------+------+------+------+
+| u1      |    6 |    7 |    5 |
++---------+------+------+------+
+| u2      |    6 |    7 |    5 |
++---------+------+------+------+
+
+
+Calcul des coûts marginaux
+
+Matrice des Coûts Marginaux:
++--------+------+------+------+
+| Pot.   |   v0 |   v1 |   v2 |
++========+======+======+======+
+| u0     |    0 |    1 |    4 |
++--------+------+------+------+
+| u1     |    0 |    1 |    0 |
++--------+------+------+------+
+| u2     |    0 |    0 |    2 |
++--------+------+------+------+
+Aucune arête améliorante détectée on stop donc l'algorithme
+
+
+
+[RÉSULTAT FINAL OPTIMAL]
++-----------+----------+----------+----------+---------------+
+| Source    | Dest 0   | Dest 1   | Dest 2   | Total Ligne   |
++===========+==========+==========+==========+===============+
+| Source 0  | 25 (c=5) | .        | .        | 25            |
++-----------+----------+----------+----------+---------------+
+| Source 1  | 5 (c=6)  | .        | 20 (c=5) | 25            |
++-----------+----------+----------+----------+---------------+
+| Source 2  | 5 (c=6)  | 20 (c=7) | .        | 25            |
++-----------+----------+----------+----------+---------------+
+| Total Col | 35       | 20       | 20       | -             |
++-----------+----------+----------+----------+---------------+
+
+Coût total de cette solution : 425
+
+

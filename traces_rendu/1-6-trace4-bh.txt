@@ -1,0 +1,128 @@
+=== TRACE D'EXÉCUTION : PROBLÈME 4 (BALAS-HAMMER) ===
+
+[ÉTAPES INITIALES]
++----------+------+------+---------+
+| Source   |   C0 |   C1 |   Prov. |
++==========+======+======+=========+
+| L0       |   30 |    1 |     600 |
++----------+------+------+---------+
+| L1       |    1 |   30 |     500 |
++----------+------+------+---------+
+| Cmd      |  100 | 1000 |    1100 |
++----------+------+------+---------+
+
+[RÉSOLUTION INITIALE : BALAS-HAMMER]
+Résolution avec Balas-Hammer
+Itération 1 :
+Colonne/Ligne de pénalité maximale avec une pénalité de 29 :
+La ligne d'indice 0
+La ligne d'indice 1
+La colonne d'indice 0
+La colonne d'indice 1
+On choisit maintenant l'arête (0,1) car elle possède le coût minimum qui est de 1
+
+
+Itération 2 :
+Colonne/Ligne de pénalité maximale avec une pénalité de 30 :
+La colonne d'indice 1
+On choisit maintenant l'arête (1,1) car elle possède le coût minimum qui est de 30
+
+
+Itération 3 :
+Colonne/Ligne de pénalité maximale avec une pénalité de 1 :
+La ligne d'indice 1
+La colonne d'indice 0
+On choisit maintenant l'arête (1,0) car elle possède le coût minimum qui est de 1
+
+
++-----------+-----------+------------+---------------+
+| Source    | Dest 0    | Dest 1     | Total Ligne   |
++===========+===========+============+===============+
+| Source 0  | .         | 600 (c=1)  | 600           |
++-----------+-----------+------------+---------------+
+| Source 1  | 100 (c=1) | 400 (c=30) | 500           |
++-----------+-----------+------------+---------------+
+| Total Col | 100       | 1000       | -             |
++-----------+-----------+------------+---------------+
+
+Coût total de cette solution : 12700
+
+
+
+[DÉROULÉ DU MARCHEPIED AVEC POTENTIEL]
+Itération 1
+
+Solution actuelle:
++-----------+-----------+------------+---------------+
+| Source    | Dest 0    | Dest 1     | Total Ligne   |
++===========+===========+============+===============+
+| Source 0  | .         | 600 (c=1)  | 600           |
++-----------+-----------+------------+---------------+
+| Source 1  | 100 (c=1) | 400 (c=30) | 500           |
++-----------+-----------+------------+---------------+
+| Total Col | 100       | 1000       | -             |
++-----------+-----------+------------+---------------+
+
+Coût total de cette solution : 12700
+
+
+aucun cycle détecté nous passons donc à l'étape suivante
+
+La proposition fournie est connexe nous passons donc à l'étape suivante
+
+
+Calcul des coûts potentiels
+On initialise le potentiel de la ligne 0 à 0
+
+Potentiel des lignes:
++------+------+
+|   u0 |   u1 |
++======+======+
+|    0 |   29 |
++------+------+
+
+Potentiel des colonnes:
++------+------+
+|   v0 |   v1 |
++======+======+
+|  -28 |    1 |
++------+------+
+
+Matrice des Coûts Potentiels: 
++---------+------+------+
+| u \ v   |   v0 |   v1 |
++=========+======+======+
+| u0      |  -28 |    1 |
++---------+------+------+
+| u1      |    1 |   30 |
++---------+------+------+
+
+
+Calcul des coûts marginaux
+
+Matrice des Coûts Marginaux:
++--------+------+------+
+| Pot.   |   v0 |   v1 |
++========+======+======+
+| u0     |   58 |    0 |
++--------+------+------+
+| u1     |    0 |    0 |
++--------+------+------+
+Aucune arête améliorante détectée on stop donc l'algorithme
+
+
+
+[RÉSULTAT FINAL OPTIMAL]
++-----------+-----------+------------+---------------+
+| Source    | Dest 0    | Dest 1     | Total Ligne   |
++===========+===========+============+===============+
+| Source 0  | .         | 600 (c=1)  | 600           |
++-----------+-----------+------------+---------------+
+| Source 1  | 100 (c=1) | 400 (c=30) | 500           |
++-----------+-----------+------------+---------------+
+| Total Col | 100       | 1000       | -             |
++-----------+-----------+------------+---------------+
+
+Coût total de cette solution : 12700
+
+
