@@ -1,12 +1,12 @@
-=== TRACE D'EXÉCUTION : PROBLÈME 1 (BALAS-HAMMER) ===
+=== TRACE D'EXÉCUTION : PROBLÈME 2 (BALAS-HAMMER) ===
 
 [ÉTAPES INITIALES]
 +----------+------+------+---------+
 | Source   |   C0 |   C1 |   Prov. |
 +==========+======+======+=========+
-| L0       |   30 |   20 |     100 |
+| L0       |   10 |   20 |     100 |
 +----------+------+------+---------+
-| L1       |   10 |   50 |     100 |
+| L1       |   30 |   10 |     100 |
 +----------+------+------+---------+
 | Cmd      |  100 |  100 |     200 |
 +----------+------+------+---------+
@@ -14,29 +14,30 @@
 [RÉSOLUTION INITIALE : BALAS-HAMMER]
 Résolution avec Balas-Hammer
 Itération 1 :
-Colonne/Ligne de pénalité maximale avec une pénalité de 40 :
+Colonne/Ligne de pénalité maximale avec une pénalité de 20 :
 La ligne d'indice 1
-On choisit maintenant l'arête (1,0) car elle possède le coût minimum qui est de 10
+La colonne d'indice 0
+On choisit maintenant l'arête (1,1) car elle possède le coût minimum qui est de 10
 
 
 Itération 2 :
-Colonne/Ligne de pénalité maximale avec une pénalité de 20 :
+Colonne/Ligne de pénalité maximale avec une pénalité de 10 :
 La ligne d'indice 0
-La colonne d'indice 1
-On choisit maintenant l'arête (0,1) car elle possède le coût minimum qui est de 20
+La colonne d'indice 0
+On choisit maintenant l'arête (0,0) car elle possède le coût minimum qui est de 10
 
 
 +-----------+------------+------------+---------------+
 | Source    | Dest 0     | Dest 1     | Total Ligne   |
 +===========+============+============+===============+
-| Source 0  | .          | 100 (c=20) | 100           |
+| Source 0  | 100 (c=10) | .          | 100           |
 +-----------+------------+------------+---------------+
-| Source 1  | 100 (c=10) | .          | 100           |
+| Source 1  | .          | 100 (c=10) | 100           |
 +-----------+------------+------------+---------------+
 | Total Col | 100        | 100        | -             |
 +-----------+------------+------------+---------------+
 
-Coût total de cette solution : 3000
+Coût total de cette solution : 2000
 
 
 
@@ -47,14 +48,14 @@ Solution actuelle:
 +-----------+------------+------------+---------------+
 | Source    | Dest 0     | Dest 1     | Total Ligne   |
 +===========+============+============+===============+
-| Source 0  | .          | 100 (c=20) | 100           |
+| Source 0  | 100 (c=10) | .          | 100           |
 +-----------+------------+------------+---------------+
-| Source 1  | 100 (c=10) | .          | 100           |
+| Source 1  | .          | 100 (c=10) | 100           |
 +-----------+------------+------------+---------------+
 | Total Col | 100        | 100        | -             |
 +-----------+------------+------------+---------------+
 
-Coût total de cette solution : 3000
+Coût total de cette solution : 2000
 
 
 aucun cycle détecté nous passons donc à l'étape suivante
@@ -63,7 +64,7 @@ Dans ce graphe on observe 2 sous-graphes connexes :
 
 sous-graphe 1 :
 Il contient les lignes :
-0
+1
 
 Et les colonnes :
 1
@@ -71,13 +72,13 @@ Et les colonnes :
 
 sous-graphe 2 :
 Il contient les lignes :
-1
+0
 
 Et les colonnes :
 0
 
 
-On ajoute donc l'arête (0, 0) afin de rendre le graphe connexe
+On ajoute donc l'arête (0, 1) afin de rendre le graphe connexe
 
 
 Calcul des coûts potentiels
@@ -87,23 +88,23 @@ Potentiel des lignes:
 +------+------+
 |   u0 |   u1 |
 +======+======+
-|    0 |  -20 |
+|    0 |  -10 |
 +------+------+
 
 Potentiel des colonnes:
 +------+------+
 |   v0 |   v1 |
 +======+======+
-|   30 |   20 |
+|   10 |   20 |
 +------+------+
 
 Matrice des Coûts Potentiels: 
 +---------+------+------+
 | u \ v   |   v0 |   v1 |
 +=========+======+======+
-| u0      |   30 |   20 |
+| u0      |   10 |   20 |
 +---------+------+------+
-| u1      |   10 |    0 |
+| u1      |    0 |   10 |
 +---------+------+------+
 
 
@@ -115,7 +116,7 @@ Matrice des Coûts Marginaux:
 +========+======+======+
 | u0     |    0 |    0 |
 +--------+------+------+
-| u1     |    0 |   50 |
+| u1     |   30 |    0 |
 +--------+------+------+
 Aucune arête améliorante détectée on stop donc l'algorithme
 
@@ -125,13 +126,13 @@ Aucune arête améliorante détectée on stop donc l'algorithme
 +-----------+------------+------------+---------------+
 | Source    | Dest 0     | Dest 1     | Total Ligne   |
 +===========+============+============+===============+
-| Source 0  | ε (c=30)   | 100 (c=20) | 100           |
+| Source 0  | 100 (c=10) | ε (c=20)   | 100           |
 +-----------+------------+------------+---------------+
-| Source 1  | 100 (c=10) | .          | 100           |
+| Source 1  | .          | 100 (c=10) | 100           |
 +-----------+------------+------------+---------------+
 | Total Col | 100        | 100        | -             |
 +-----------+------------+------------+---------------+
 
-Coût total de cette solution : 3000
+Coût total de cette solution : 2000
 
 

@@ -134,6 +134,14 @@ Et les colonnes :
 
 sous-graphe 2 :
 Il contient les lignes :
+4
+
+Et les colonnes :
+2
+
+
+sous-graphe 3 :
+Il contient les lignes :
 0
 6
 
@@ -141,17 +149,9 @@ Et les colonnes :
 1
 
 
-sous-graphe 3 :
-Il contient les lignes :
-4
-
-Et les colonnes :
-2
-
+On ajoute donc l'arête (1, 2) afin de rendre le graphe connexe
 
 On ajoute donc l'arête (3, 1) afin de rendre le graphe connexe
-
-On ajoute donc l'arête (1, 2) afin de rendre le graphe connexe
 
 
 Calcul des coûts potentiels

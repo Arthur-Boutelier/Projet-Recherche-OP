@@ -1,4 +1,4 @@
-=== TRACE D'EXÉCUTION : PROBLÈME 1 (NORD-OUEST) ===
+=== TRACE D'EXÉCUTION : PROBLÈME 1 (BALAS-HAMMER) ===
 
 [ÉTAPES INITIALES]
 +----------+------+------+---------+
@@ -11,18 +11,32 @@
 | Cmd      |  100 |  100 |     200 |
 +----------+------+------+---------+
 
-[RÉSOLUTION INITIALE : NORD-OUEST]
+[RÉSOLUTION INITIALE : BALAS-HAMMER]
+Résolution avec Balas-Hammer
+Itération 1 :
+Colonne/Ligne de pénalité maximale avec une pénalité de 40 :
+La ligne d'indice 1
+On choisit maintenant l'arête (1,0) car elle possède le coût minimum qui est de 10
+
+
+Itération 2 :
+Colonne/Ligne de pénalité maximale avec une pénalité de 20 :
+La ligne d'indice 0
+La colonne d'indice 1
+On choisit maintenant l'arête (0,1) car elle possède le coût minimum qui est de 20
+
+
 +-----------+------------+------------+---------------+
 | Source    | Dest 0     | Dest 1     | Total Ligne   |
 +===========+============+============+===============+
-| Source 0  | 100 (c=30) | .          | 100           |
+| Source 0  | .          | 100 (c=20) | 100           |
 +-----------+------------+------------+---------------+
-| Source 1  | .          | 100 (c=50) | 100           |
+| Source 1  | 100 (c=10) | .          | 100           |
 +-----------+------------+------------+---------------+
 | Total Col | 100        | 100        | -             |
 +-----------+------------+------------+---------------+
 
-Coût total de cette solution : 8000
+Coût total de cette solution : 3000
 
 
 
@@ -33,14 +47,14 @@ Solution actuelle:
 +-----------+------------+------------+---------------+
 | Source    | Dest 0     | Dest 1     | Total Ligne   |
 +===========+============+============+===============+
-| Source 0  | 100 (c=30) | .          | 100           |
+| Source 0  | .          | 100 (c=20) | 100           |
 +-----------+------------+------------+---------------+
-| Source 1  | .          | 100 (c=50) | 100           |
+| Source 1  | 100 (c=10) | .          | 100           |
 +-----------+------------+------------+---------------+
 | Total Col | 100        | 100        | -             |
 +-----------+------------+------------+---------------+
 
-Coût total de cette solution : 8000
+Coût total de cette solution : 3000
 
 
 aucun cycle détecté nous passons donc à l'étape suivante
@@ -49,7 +63,7 @@ Dans ce graphe on observe 2 sous-graphes connexes :
 
 sous-graphe 1 :
 Il contient les lignes :
-0
+1
 
 Et les colonnes :
 0
@@ -57,78 +71,13 @@ Et les colonnes :
 
 sous-graphe 2 :
 Il contient les lignes :
-1
+0
 
 Et les colonnes :
 1
 
 
-On ajoute donc l'arête (1, 0) afin de rendre le graphe connexe
-
-
-Calcul des coûts potentiels
-On initialise le potentiel de la ligne 0 à 0
-
-Potentiel des lignes:
-+------+------+
-|   u0 |   u1 |
-+======+======+
-|    0 |  -20 |
-+------+------+
-
-Potentiel des colonnes:
-+------+------+
-|   v0 |   v1 |
-+======+======+
-|   30 |   70 |
-+------+------+
-
-Matrice des Coûts Potentiels: 
-+---------+------+------+
-| u \ v   |   v0 |   v1 |
-+=========+======+======+
-| u0      |   30 |   70 |
-+---------+------+------+
-| u1      |   10 |   50 |
-+---------+------+------+
-
-
-Calcul des coûts marginaux
-
-Matrice des Coûts Marginaux:
-+--------+------+------+
-| Pot.   |   v0 |   v1 |
-+========+======+======+
-| u0     |    0 |  -50 |
-+--------+------+------+
-| u1     |    0 |    0 |
-+--------+------+------+
-On ajoute l'arête (0, 1) car elle possède un coût potentiel de -50
-
-
-Itération 2
-
-Solution actuelle:
-+-----------+------------+------------+---------------+
-| Source    | Dest 0     | Dest 1     | Total Ligne   |
-+===========+============+============+===============+
-| Source 0  | 100 (c=30) | ε (c=20)   | 100           |
-+-----------+------------+------------+---------------+
-| Source 1  | ε (c=10)   | 100 (c=50) | 100           |
-+-----------+------------+------------+---------------+
-| Total Col | 100        | 100        | -             |
-+-----------+------------+------------+---------------+
-
-Coût total de cette solution : 8000
-
-
-Cycle détecté
-Le cycle est composé des points :
-(0, 1) => (1, 1) => (1, 0) => (0, 0) 
-
-Début de la maximisation du cycle :
-(0, 1) (+100) => (1, 1) (-100) => (1, 0) (+100) => (0, 0) (-100) 
-On supprime donc l'arête : (1, 1)
+On ajoute donc l'arête (0, 0) afin de rendre le graphe connexe
 
 
 Calcul des coûts potentiels

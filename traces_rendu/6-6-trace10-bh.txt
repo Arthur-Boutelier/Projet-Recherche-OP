@@ -100,6 +100,14 @@ Dans ce graphe on observe 3 sous-graphes connexes :
 
 sous-graphe 1 :
 Il contient les lignes :
+1
+
+Et les colonnes :
+0
+
+
+sous-graphe 2 :
+Il contient les lignes :
 2
 
 Et les colonnes :
@@ -110,25 +118,17 @@ Et les colonnes :
 6
 
 
-sous-graphe 2 :
-Il contient les lignes :
-0
-
-Et les colonnes :
-1
-
-
 sous-graphe 3 :
 Il contient les lignes :
-1
-
-Et les colonnes :
 0
 
+Et les colonnes :
+1
 
-On ajoute donc l'arête (0, 2) afin de rendre le graphe connexe
 
 On ajoute donc l'arête (1, 6) afin de rendre le graphe connexe
+
+On ajoute donc l'arête (0, 2) afin de rendre le graphe connexe
 
 
 Calcul des coûts potentiels

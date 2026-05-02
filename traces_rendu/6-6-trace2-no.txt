@@ -49,18 +49,18 @@ Dans ce graphe on observe 2 sous-graphes connexes :
 
 sous-graphe 1 :
 Il contient les lignes :
-0
+1
 
 Et les colonnes :
-0
+1
 
 
 sous-graphe 2 :
 Il contient les lignes :
-1
+0
 
 Et les colonnes :
-1
+0
 
 
 On ajoute donc l'arête (0, 1) afin de rendre le graphe connexe

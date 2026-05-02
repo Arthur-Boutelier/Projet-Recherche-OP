@@ -88,14 +88,6 @@ Dans ce graphe on observe 2 sous-graphes connexes :
 
 sous-graphe 1 :
 Il contient les lignes :
-1
-
-Et les colonnes :
-2
-
-
-sous-graphe 2 :
-Il contient les lignes :
 0
 2
 
@@ -103,6 +95,14 @@ Et les colonnes :
 0
 1
 3
+
+
+sous-graphe 2 :
+Il contient les lignes :
+1
+
+Et les colonnes :
+2
 
 
 On ajoute donc l'arête (0, 2) afin de rendre le graphe connexe

@@ -67,21 +67,21 @@ Dans ce graphe on observe 2 sous-graphes connexes :
 
 sous-graphe 1 :
 Il contient les lignes :
+0
+1
+
+Et les colonnes :
+0
+
+
+sous-graphe 2 :
+Il contient les lignes :
 2
 3
 4
 
 Et les colonnes :
 1
-
-
-sous-graphe 2 :
-Il contient les lignes :
-0
-1
-
-Et les colonnes :
-0
 
 
 On ajoute donc l'arête (4, 0) afin de rendre le graphe connexe

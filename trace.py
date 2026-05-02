@@ -2,7 +2,7 @@ import sys
 import os
 from contextlib import redirect_stdout
 from ProblemeTransport import ProblemeTransport
-GROUPE = "1"
+GROUPE = "6"
 EQUIPE = "6" 
 
 def generer_toutes_les_traces():
